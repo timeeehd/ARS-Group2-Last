@@ -16,14 +16,15 @@ class Robot(pygame.sprite.Sprite):
         self.surf = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         self.surf.fill((255, 255, 255, 0))
         self.rect = self.surf.get_rect()
-        self.rect.move_ip((settings.SCREEN_WIDTH // 2 - radius, settings.SCREEN_HEIGHT // 2 - radius))
+        # self.rect.move_ip((settings.SCREEN_WIDTH // 2 - radius, settings.SCREEN_HEIGHT // 2 - radius))
+        self.rect.move_ip(200, 200)
         self.Vl = 10  # 1000000
         self.Vr = 10  # 1000000
         self.radius = radius
         self.l = 2 * radius
         self.x = self.rect.centerx
         self.y = self.rect.centery
-        self.theta = 0.5 * math.pi
+        self.theta = 0
 
     # Define the robot movement
     def update(self, pressed_keys, ):
@@ -37,11 +38,11 @@ class Robot(pygame.sprite.Sprite):
         if pressed_keys[K_a]:
             self.theta -= settings.theta_step
             if self.theta <= 0:
-                self.theta += 2*math.pi
+                self.theta += 2 * math.pi
         if pressed_keys[K_d]:
             self.theta += settings.theta_step
-            if self.theta >= 2*math.pi:
-                self.theta -= 2*math.pi
+            if self.theta >= 2 * math.pi:
+                self.theta -= 2 * math.pi
 
         # Move the robot, and register positions
         # If the wheels move at the same velocity, move forward
