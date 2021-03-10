@@ -1,9 +1,15 @@
 # Authors: Rick van Bellen, Tim Debets, Pierre Onghena
+import random
+
 import pygame
 from pygame.locals import *
+
+from Beacon import Beacon
 from Robot import Robot
 import settings
 import math
+
+from utility import calc_distance
 
 
 def manual_play():
@@ -16,7 +22,6 @@ def manual_play():
     robot = Robot(20, 12)
     all_sprites.add(robot)
 
-
     # Variable to keep the main loop running
     running = True
 
@@ -28,6 +33,10 @@ def manual_play():
 
     history_x = []
     history_y = []
+
+    beacons = []
+    for i in range(20):
+        beacons.append(Beacon(random.uniform(0, settings.SCREEN_WIDTH), random.uniform(0, settings.SCREEN_HEIGHT), i))
 
     # Main game loop
     while running:
@@ -77,7 +86,6 @@ def manual_play():
         orient_rect.centery = 50
         text_rects.append(orient_rect)
 
-
         # # Fill covered area
         for i in range(len(history_x) - 1):
             pygame.draw.line(screen, (0, 0, 0), (history_x[i], history_y[i]), (history_x[i + 1], history_y[i + 1]), 3)
@@ -86,10 +94,18 @@ def manual_play():
         for i in range(len(text_areas)):
             screen.blit(text_areas[i], text_rects[i])
 
+        for beacon in beacons:
+            distance = calc_distance((robot.x, robot.y), (beacon.x, beacon.y))
+            if distance <= settings.MAX_SENSOR_DIST:
+                beacon.distance = distance
+                # It draws now from center of circles
+                pygame.draw.line(screen, (28, 144, 70), (robot.x, robot.y), (beacon.x, beacon.y), 2)
+            pygame.draw.circle(screen, (0, 0, 0), (beacon.x, beacon.y), 10)
+
+
         # Draw all entities
         for entity in all_sprites:
             screen.blit(entity.surf, entity.rect)
-
 
         # Update the screen
         pygame.display.flip()

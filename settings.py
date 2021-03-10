@@ -2,7 +2,7 @@
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
-MAX_SENSOR_DIST = 300
+MAX_SENSOR_DIST = 200
 V_step = 5
 theta_step = 0.1
 fps = 30
