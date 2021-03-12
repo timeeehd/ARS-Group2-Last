@@ -7,17 +7,25 @@ from pygame.locals import *
 import settings
 import numpy as np
 
+
+def predict_position(beacon_features):
+    return np.random.rand(3)
+
+
 # Method for Kalman filter
-def kalman_filter(previous_state, previous_covariance, action, observation, B):
+def kalman_filter(previous_state, previous_covariance, action, beacon_features, B, R, Q):
     A = np.eye(3)
+    C = np.eye(3)
+    # Calculate the observation from the beacon features
+    observation = predict_position(beacon_features)
     # Prediction
-    pred_state = A * previous_state + B * action
-    pred_covariance = A * previous_covariance * AT + R
+    pred_state = A.dot(previous_state) + B.dot(action)
+    pred_covariance = A.dot(previous_covariance).dot(A.T) + R
 
     # Correction
-    K = pred_covariance * CT * (C * pred_covariance * CT + Q)**-1
-    state = pred_state + K * (observation - C * pred_state)
-    covariance = (np.eye(moetiknogkijken) - KC) * pred_covariance
+    K = pred_covariance.dot(C.T).dot(np.linalg.inv(C.dot(pred_covariance).dot(C.T) + Q))
+    state = pred_state + K.dot(observation - C.dot(pred_state))
+    covariance = (np.eye(3) - K.dot(C)).dot(pred_covariance)
     return state, covariance
 
 
@@ -40,18 +48,21 @@ class Robot(pygame.sprite.Sprite):
         self.covariance = np.diag([1, 1, 0.2])
 
     # Define the robot movement
-    def update(self, pressed_keys, ):
+    def update(self, pressed_keys, beacons):
+        omega = 0
         # Handle user input
         if pressed_keys[K_w]:
             self.v += settings.V_step
         if pressed_keys[K_s]:
             self.v -= settings.V_step
         if pressed_keys[K_a]:
-            self.theta -= settings.theta_step
+            omega = settings.theta_step
+            self.theta -= omega
             if self.theta <= 0:
                 self.theta += 2 * math.pi
         if pressed_keys[K_d]:
-            self.theta += settings.theta_step
+            omega = settings.theta_step
+            self.theta += omega
             if self.theta >= 2 * math.pi:
                 self.theta -= 2 * math.pi
         if pressed_keys[K_x]:
@@ -87,5 +98,18 @@ class Robot(pygame.sprite.Sprite):
             self.y = self.rect.centery
 
         # Update the prediction of the robot location
-        #action = np.array([self.v, ])
-        #self.state, self.covariance = kalman_filter(self.state, self.covariance, action, observation, B)
+        action = np.array([self.v, omega])
+        dt = settings.dt
+        B = np.array([[dt * math.cos(self.theta), 0],
+                      [dt * math.sin(self.theta), 0],
+                      [0, dt]])
+        # TODO: update R and Q
+        R = self.covariance
+        Q = self.covariance
+        beacon_features = []
+        for beacon in beacons:
+            phi = abs(beacon.angle - self.theta)
+            if phi > math.pi:
+                phi = 2 * math.pi - phi
+            beacon_features.append(np.array([beacon.distance, phi, beacon.id]))
+        self.state, self.covariance = kalman_filter(self.state, self.covariance, action, beacon_features, B, R, Q)

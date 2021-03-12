@@ -7,9 +7,7 @@ from pygame.locals import *
 from Beacon import Beacon
 from Robot import Robot
 import settings
-import math
-
-from utility import calc_distance
+from utility import calc_distance, calc_angle
 
 
 def manual_play():
@@ -53,12 +51,25 @@ def manual_play():
             elif event.type == QUIT:
                 running = False
 
-        # Get the set of keys pressed and check for user input, update accordingly
-        pressed_keys = pygame.key.get_pressed()
-        robot.update(pressed_keys)
-
         # Fill the screen with white
         screen.fill((255, 255, 255))
+
+        # Update the distance of the beacons, and store this as input for the next iteration
+        beacons_in_vision = []
+        for beacon in beacons:
+            distance = calc_distance((robot.x, robot.y), (beacon.x, beacon.y))
+            angle = calc_angle((robot.x, robot.y), (beacon.x, beacon.y))
+            if distance <= settings.MAX_SENSOR_DIST:
+                beacon.distance = distance
+                beacon.angle = angle
+                beacons_in_vision.append(beacon)
+                # It draws now from center of circles
+                pygame.draw.line(screen, (28, 144, 70), (robot.x, robot.y), (beacon.x, beacon.y), 2)
+            pygame.draw.circle(screen, (0, 0, 0), (beacon.x, beacon.y), 10)
+
+        # Get the set of keys pressed and check for user input, update accordingly
+        pressed_keys = pygame.key.get_pressed()
+        robot.update(pressed_keys, beacons_in_vision)
 
         # Get everything ready to draw the text on the screen
         # Wheel speed
@@ -85,15 +96,6 @@ def manual_play():
         # Write the needed text on the screen
         for i in range(len(text_areas)):
             screen.blit(text_areas[i], text_rects[i])
-
-        for beacon in beacons:
-            distance = calc_distance((robot.x, robot.y), (beacon.x, beacon.y))
-            if distance <= settings.MAX_SENSOR_DIST:
-                beacon.distance = distance
-                # It draws now from center of circles
-                pygame.draw.line(screen, (28, 144, 70), (robot.x, robot.y), (beacon.x, beacon.y), 2)
-            pygame.draw.circle(screen, (0, 0, 0), (beacon.x, beacon.y), 10)
-
 
         # Draw all entities
         for entity in all_sprites:
