@@ -31,6 +31,7 @@ def manual_play():
 
     history_x = []
     history_y = []
+    history_state = []
 
     beacons = []
     for i in range(20):
@@ -40,6 +41,7 @@ def manual_play():
     while running:
         history_x.append(robot.x)
         history_y.append(robot.y)
+        history_state.append(robot.state)
         # Look at every event in the queue
         for event in pygame.event.get():
             if event.type == KEYDOWN:
@@ -89,9 +91,13 @@ def manual_play():
         orient_rect.centery = 50
         text_rects.append(orient_rect)
 
-        # # Fill covered area
+        # Fill covered area
         for i in range(len(history_x) - 1):
             pygame.draw.line(screen, (0, 0, 0), (history_x[i], history_y[i]), (history_x[i + 1], history_y[i + 1]), 3)
+
+        # Draw line for predicted pose
+        for i in range(len(history_state) - 1):
+            pygame.draw.line(screen, (100, 100, 100), (history_state[i][0], history_state[i][1]), (history_state[i + 1][0], history_state[i + 1][1]), 3)
 
         # Write the needed text on the screen
         for i in range(len(text_areas)):
