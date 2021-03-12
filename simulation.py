@@ -19,7 +19,7 @@ def manual_play():
 
     # Create robot object and walls
     all_sprites = pygame.sprite.Group()
-    robot = Robot(20, 12)
+    robot = Robot(20)
     all_sprites.add(robot)
 
     # Variable to keep the main loop running
@@ -65,20 +65,12 @@ def manual_play():
         text_areas = []
         text_rects = []
 
-        left_wheel = robot.Vl
-        right_wheel = robot.Vr
-        left_wheel_text = font.render("Speed left wheel:  " + (str(round(left_wheel, 2))), True, (0, 0, 0))
+        left_wheel_text = font.render("Speed of robot:  " + (str(round(robot.v, 2))), True, (0, 0, 0))
         text_areas.append(left_wheel_text)
         text_rect_left = left_wheel_text.get_rect()
         text_rect_left.left = 10
-        text_rect_left.centery = 10
+        text_rect_left.centery = 30
         text_rects.append(text_rect_left)
-        right_wheel_text = font.render("Speed right wheel: " + (str(round(right_wheel, 2))), True, (0, 0, 0))
-        text_areas.append(right_wheel_text)
-        text_rect_right = right_wheel_text.get_rect()
-        text_rect_right.left = 10
-        text_rect_right.centery = 30
-        text_rects.append(text_rect_right)
         orientation_text = font.render("Orientation of robot: " + (str(round(robot.theta, 2))), True, (0, 0, 0))
         text_areas.append(orientation_text)
         orient_rect = orientation_text.get_rect()
