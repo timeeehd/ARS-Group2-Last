@@ -22,19 +22,18 @@ def predict_position(beacon_features, previous_state):
 
         # Calculate which intersection is the right one (TODO)
         angle = previous_state[2] - beacon_features[0][1]
-        # intersection 1 to beacon 1
-        x_pred1 = intersection1[0] + math.cos(angle) * beacon_features[0][0].distance
-        # intersection 2 to beacon 1
-        x_pred2 = intersection2[0] + math.cos(angle) * beacon_features[0][0].distance
-
-        if abs(x_pred1 - x0) < abs(x_pred2 - x0):
+        beacon1_pred1 = (intersection1[0] + math.sin(angle) * beacon_features[0][0].distance,
+                         intersection1[1] + math.cos(angle) * beacon_features[0][0].distance)
+        beacon1_pred2 = (intersection2[0] + math.sin(angle) * beacon_features[0][0].distance,
+                         intersection2[1] + math.cos(angle) * beacon_features[0][0].distance)
+        if calc_distance(beacon1_pred1, (x0, y0)) < calc_distance(beacon1_pred2, (x0, y0)):
             intersection = intersection1
         else:
             intersection = intersection2
 
         # Calculate orientation
         angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
-        orientation = angle_intersection_to_circle_center + beacon_features[0][1]
+        orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
         return np.array([intersection[0], intersection[1], orientation])
     # If there are 3 or more, take 3 and predict the pose
     else:
@@ -55,7 +54,7 @@ def predict_position(beacon_features, previous_state):
 
         # I still don't know which is correct without using theta so I'll just return x3 and y3
         angle_intersection_to_circle_center = math.atan(abs(y - y0) / abs(x - x0))
-        orientation = angle_intersection_to_circle_center + beacon_features[0][1]
+        orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
         return np.array([x, y, orientation])
 
 
