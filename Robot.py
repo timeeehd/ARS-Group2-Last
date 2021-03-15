@@ -20,16 +20,8 @@ def predict_position(beacon_features, previous_state):
         x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
         intersection1, intersection2 = intersection_points(x0, y0, r0, x1, y1, r1)
 
-        # Calculate which intersection is the right one (TODO)
-        angle = previous_state[2] - beacon_features[0][1]
-        beacon1_pred1 = (intersection1[0] + math.sin(angle) * beacon_features[0][0].distance,
-                         intersection1[1] + math.cos(angle) * beacon_features[0][0].distance)
-        beacon1_pred2 = (intersection2[0] + math.sin(angle) * beacon_features[0][0].distance,
-                         intersection2[1] + math.cos(angle) * beacon_features[0][0].distance)
-        if calc_distance(beacon1_pred1, (x0, y0)) < calc_distance(beacon1_pred2, (x0, y0)):
-            intersection = intersection1
-        else:
-            intersection = intersection2
+        # Choose just one intersection to be the right one
+        intersection = intersection1
 
         # Calculate orientation
         angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
