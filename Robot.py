@@ -6,7 +6,7 @@ import pygame
 from pygame.locals import *
 import settings
 import numpy as np
-from utility import calc_distance, intersection_points
+from utility import *
 
 
 def predict_position(beacon_features, previous_state):
@@ -67,6 +67,12 @@ def kalman_filter(previous_state, previous_covariance, action, beacon_features, 
     z = predict_position(beacon_features, previous_state)
     if z is None:
         z = previous_state
+    # Sensor noise
+    noise_x, noise_y, noise_t = np.random.normal(0, 0.3), np.random.normal(0, 0.3), \
+                                np.random.normal(0, 0.1)
+    noise = [noise_x, noise_y, noise_t]
+    z = np.add(z, noise)
+
     # Prediction
     pred_state = A.dot(previous_state) + B.dot(action)
     pred_covariance = A.dot(previous_covariance).dot(A.T) + R
@@ -94,7 +100,7 @@ class Robot(pygame.sprite.Sprite):
         self.y = self.rect.centery
         self.theta = 0
         self.state = np.array([self.x, self.y, self.theta])
-        self.covariance = np.diag([1, 1, 0.2])
+        self.covariance = np.diag([0, 0, 0])
 
     # Define the robot movement
     def update(self, pressed_keys, beacons):
@@ -153,8 +159,8 @@ class Robot(pygame.sprite.Sprite):
                       [dt * math.sin(self.theta), 0],
                       [0, dt]])
         # TODO: update R and Q
-        R = self.covariance
-        Q = self.covariance
+        R = np.diag([0.6, 0.6, 0.4])
+        Q = np.diag([0.1, 0.1, 0.05])
         beacon_features = []
         for beacon in beacons:
             phi = self.theta - beacon.angle
