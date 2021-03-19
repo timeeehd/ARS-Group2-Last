@@ -20,21 +20,12 @@ def predict_position(beacon_features, previous_state):
         x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
         intersection1, intersection2 = intersection_points(x0, y0, r0, x1, y1, r1)
 
-        # Calculate which intersection is the right one (TODO)
-        angle = previous_state[2] - beacon_features[0][1]
-        # intersection 1 to beacon 1
-        x_pred1 = intersection1[0] + math.cos(angle) * beacon_features[0][0].distance
-        # intersection 2 to beacon 1
-        x_pred2 = intersection2[0] + math.cos(angle) * beacon_features[0][0].distance
-
-        if abs(x_pred1 - x0) < abs(x_pred2 - x0):
-            intersection = intersection1
-        else:
-            intersection = intersection2
+        # Choose just one intersection to be the right one
+        intersection = intersection1
 
         # Calculate orientation
         angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
-        orientation = angle_intersection_to_circle_center + beacon_features[0][1]
+        orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
         return np.array([intersection[0], intersection[1], orientation])
     # If there are 3 or more, take 3 and predict the pose
     else:
@@ -55,7 +46,7 @@ def predict_position(beacon_features, previous_state):
 
         # I still don't know which is correct without using theta so I'll just return x3 and y3
         angle_intersection_to_circle_center = math.atan(abs(y - y0) / abs(x - x0))
-        orientation = angle_intersection_to_circle_center + beacon_features[0][1]
+        orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
         return np.array([x, y, orientation])
 
 
