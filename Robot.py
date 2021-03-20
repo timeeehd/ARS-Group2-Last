@@ -54,28 +54,26 @@ def predict_position(beacon_features):
 def kalman_filter(previous_state, previous_covariance, action, beacon_features, B, R, Q):
     A = np.eye(3)
     C = np.eye(3)
-    # Calculate the observation from the beacon features
-    z = predict_position(beacon_features)
-    if z is None:
-        z = previous_state
-    # Sensor noise
-    noise_x, noise_y, noise_t = np.random.normal(0, 0.3), np.random.normal(0, 0.3), \
-                                np.random.normal(0, 0.1)
-    noise = [noise_x, noise_y, noise_t]
-    z = np.add(z, noise)
 
     # Prediction
     pred_state = A.dot(previous_state) + B.dot(action)
     pred_covariance = A.dot(previous_covariance).dot(A.T) + R
 
     # Correction
-    if z is not None:
+    z = predict_position(beacon_features)
+    if z is None:
+        state = pred_state
+        covariance = pred_covariance
+    else:
+        # Sensor noise
+        noise_x, noise_y, noise_t = np.random.normal(0, 0.3), np.random.normal(0, 0.3), \
+                                    np.random.normal(0, 0.1)
+        noise = [noise_x, noise_y, noise_t]
+        z = np.add(z, noise)
         K = pred_covariance.dot(C.T).dot(np.linalg.inv(C.dot(pred_covariance).dot(C.T) + Q))
         state = pred_state + K.dot(z - C.dot(pred_state))
         covariance = (np.eye(3) - K.dot(C)).dot(pred_covariance)
-    else:
-        state = pred_state
-        covariance = pred_covariance
+
     return state, covariance
 
 
