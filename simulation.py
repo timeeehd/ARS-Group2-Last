@@ -102,10 +102,10 @@ def manual_play():
             pygame.draw.line(screen, (100, 100, 100), (history_state[i][0], history_state[i][1]), (history_state[i + 1][0], history_state[i + 1][1]), 3)
 
         # Draw ellipses
-        for i in range(0, len(history_sigma) - 1, 50):
-            pygame.draw.ellipse(screen, (100, 100, 100), (history_state[i][0] - 500 * history_sigma[i][0,0] / 2,
-                                                          history_state[i][1] - 500 * history_sigma[i][1,1] / 2,
-                                                          500 * history_sigma[i][0,0], 500 * history_sigma[i][1,1]), 2)
+        for i in range(0, len(history_sigma) - 1, 20):
+            pygame.draw.ellipse(screen, (100, 100, 100), (history_state[i][0] - history_sigma[i][0,0] / 2,
+                                                          history_state[i][1] - history_sigma[i][1,1] / 2,
+                                                          history_sigma[i][0,0], history_sigma[i][1,1]), 2)
 
         # Write the needed text on the screen
         for i in range(len(text_areas)):
