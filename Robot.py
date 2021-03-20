@@ -66,10 +66,10 @@ def kalman_filter(previous_state, previous_covariance, action, beacon_features, 
         covariance = pred_covariance
     else:
         # Sensor noise
-        noise_x, noise_y, noise_t = np.random.normal(0, 0.3), np.random.normal(0, 0.3), \
+        noise_x, noise_y, noise_t = np.random.normal(0, 1), np.random.normal(0, 1), \
                                     np.random.normal(0, 0.1)
-        noise = [noise_x, noise_y, noise_t]
-        z = np.add(z, noise)
+        noise_sensor = [noise_x, noise_y, noise_t]
+        z = np.add(z, noise_sensor)
         K = pred_covariance.dot(C.T).dot(np.linalg.inv(C.dot(pred_covariance).dot(C.T) + Q))
         state = pred_state + K.dot(z - C.dot(pred_state))
         covariance = (np.eye(3) - K.dot(C)).dot(pred_covariance)
@@ -147,12 +147,16 @@ class Robot(pygame.sprite.Sprite):
 
         # Update the prediction of the robot location
         action = np.array([self.v, omega])
+        # Control noise
+        noise_translation, noise_rotation = np.random.normal(0, 1), np.random.normal(0, 0.1)
+        noise_control = [noise_translation, noise_rotation]
+        action = np.add(action, noise_control)
         dt = settings.dt
         B = np.array([[dt * math.cos(self.theta), 0],
                       [dt * math.sin(self.theta), 0],
                       [0, dt]])
         # TODO: update R and Q
-        R = np.diag([0.6, 0.6, 0.4])
+        R = np.diag([1, 1, 0.1])
         Q = np.diag([0.1, 0.1, 0.05])
         beacon_features = []
         for beacon in beacons:
@@ -161,3 +165,4 @@ class Robot(pygame.sprite.Sprite):
                 phi = 2 * math.pi + phi
             beacon_features.append(np.array([beacon, phi]))
         self.state, self.covariance = kalman_filter(self.state, self.covariance, action, beacon_features, B, R, Q)
+        print(self.covariance)
