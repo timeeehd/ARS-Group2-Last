@@ -156,8 +156,8 @@ class Robot(pygame.sprite.Sprite):
                       [dt * math.sin(self.theta), 0],
                       [0, dt]])
         # TODO: update R and Q
-        R = np.diag([1, 1, 0.1])
-        Q = np.diag([0.1, 0.1, 0.05])
+        R = np.diag([np.random.normal(1), np.random.normal(1), np.random.normal(0.1)])
+        Q = np.diag([np.random.normal(0.5), np.random.normal(0.5), np.random.normal(0.05)])
         beacon_features = []
         for beacon in beacons:
             phi = self.theta - beacon.angle
