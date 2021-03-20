@@ -9,24 +9,24 @@ import numpy as np
 from utility import *
 
 
-def predict_position(beacon_features, previous_state):
+def predict_position(beacon_features):
     # If there is one beacon or less, we can't predict the position
-    if len(beacon_features) <= 1:
+    if len(beacon_features) <= 2:
         return None
     # If there are 2, we can predict the pose with 2 beacons
-    elif len(beacon_features) == 2:
-        # Calculate position
-        x0, y0, r0 = beacon_features[0][0].x, beacon_features[0][0].y, beacon_features[0][0].distance
-        x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
-        intersection1, intersection2 = intersection_points(x0, y0, r0, x1, y1, r1)
-
-        # Choose just one intersection to be the right one
-        intersection = intersection1
-
-        # Calculate orientation
-        angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
-        orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
-        return np.array([intersection[0], intersection[1], orientation])
+    # elif len(beacon_features) == 2:
+    #     # Calculate position
+    #     x0, y0, r0 = beacon_features[0][0].x, beacon_features[0][0].y, beacon_features[0][0].distance
+    #     x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
+    #     intersection1, intersection2 = intersection_points(x0, y0, r0, x1, y1, r1)
+    #
+    #     # Choose just one intersection to be the right one
+    #     intersection = intersection1
+    #
+    #     # Calculate orientation
+    #     angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
+    #     orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
+    #     return np.array([intersection[0], intersection[1], orientation])
     # If there are 3 or more, take 3 and predict the pose
     else:
         x0, y0, r0 = beacon_features[0][0].x, beacon_features[0][0].y, beacon_features[0][0].distance
@@ -55,7 +55,7 @@ def kalman_filter(previous_state, previous_covariance, action, beacon_features, 
     A = np.eye(3)
     C = np.eye(3)
     # Calculate the observation from the beacon features
-    z = predict_position(beacon_features, previous_state)
+    z = predict_position(beacon_features)
     if z is None:
         z = previous_state
     # Sensor noise
@@ -69,9 +69,13 @@ def kalman_filter(previous_state, previous_covariance, action, beacon_features, 
     pred_covariance = A.dot(previous_covariance).dot(A.T) + R
 
     # Correction
-    K = pred_covariance.dot(C.T).dot(np.linalg.inv(C.dot(pred_covariance).dot(C.T) + Q))
-    state = pred_state + K.dot(z - C.dot(pred_state))
-    covariance = (np.eye(3) - K.dot(C)).dot(pred_covariance)
+    if z is not None:
+        K = pred_covariance.dot(C.T).dot(np.linalg.inv(C.dot(pred_covariance).dot(C.T) + Q))
+        state = pred_state + K.dot(z - C.dot(pred_state))
+        covariance = (np.eye(3) - K.dot(C)).dot(pred_covariance)
+    else:
+        state = pred_state
+        covariance = pred_covariance
     return state, covariance
 
 
