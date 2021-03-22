@@ -45,8 +45,11 @@ def draw_dashed_line(surf, color, start_pos, end_pos, width=3, dash_length=10):
         a = abs(x2 - x1)
         b = abs(y2 - y1)
         c = round(math.sqrt(a**2 + b**2))
-        dx = dl * a / c
-        dy = dl * b / c
+        if c != 0:
+            dx = dl * a / c
+            dy = dl * b / c
+        else:
+            return
 
         xcoords = [x for x in numpy.arange(x1, x2, dx if x1 < x2 else -dx)]
         ycoords = [y for y in numpy.arange(y1, y2, dy if y1 < y2 else -dy)]
