@@ -36,10 +36,10 @@ def draw_dashed_line(surf, color, start_pos, end_pos, width=3, dash_length=10):
     dl = dash_length
 
     if (x1 == x2):
-        ycoords = [y for y in range(y1, y2, dl if y1 < y2 else -dl)]
+        ycoords = [y for y in range(int(y1), int(y2), int(dl) if y1 < y2 else -dl)]
         xcoords = [x1] * len(ycoords)
     elif (y1 == y2):
-        xcoords = [x for x in range(x1, x2, dl if x1 < x2 else -dl)]
+        xcoords = [x for x in range(int(x1), int(x2), int(dl) if x1 < x2 else -dl)]
         ycoords = [y1] * len(xcoords)
     else:
         a = abs(x2 - x1)
