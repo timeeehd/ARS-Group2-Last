@@ -1,3 +1,5 @@
+# Author: Rick van Bellen, Pierre Onghena, Tim Debets
+
 import math
 
 

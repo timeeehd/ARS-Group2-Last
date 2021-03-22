@@ -1,5 +1,4 @@
-# Main author: Rick van Bellen
-# Co author: Pierre Onghena, Tim Debets
+# Author: Rick van Bellen, Pierre Onghena, Tim Debets
 
 import math
 import pygame
@@ -13,21 +12,6 @@ def predict_position(beacon_features):
     # If there is one beacon or less, we can't predict the position
     if len(beacon_features) <= 2:
         return None
-    # If there are 2, we can predict the pose with 2 beacons
-    # elif len(beacon_features) == 2:
-    #     # Calculate position
-    #     x0, y0, r0 = beacon_features[0][0].x, beacon_features[0][0].y, beacon_features[0][0].distance
-    #     x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
-    #     intersection1, intersection2 = intersection_points(x0, y0, r0, x1, y1, r1)
-    #
-    #     # Choose just one intersection to be the right one
-    #     intersection = intersection1
-    #
-    #     # Calculate orientation
-    #     angle_intersection_to_circle_center = math.atan(abs(intersection[1] - y0) / abs(intersection[0] - x0))
-    #     orientation = (angle_intersection_to_circle_center + beacon_features[0][1]) % (2 * math.pi)
-    #     return np.array([intersection[0], intersection[1], orientation])
-    # If there are 3 or more, take 3 and predict the pose
     else:
         x0, y0, r0 = beacon_features[0][0].x, beacon_features[0][0].y, beacon_features[0][0].distance
         x1, y1, r1 = beacon_features[1][0].x, beacon_features[1][0].y, beacon_features[1][0].distance
@@ -155,7 +139,6 @@ class Robot(pygame.sprite.Sprite):
         B = np.array([[dt * math.cos(self.theta), 0],
                       [dt * math.sin(self.theta), 0],
                       [0, dt]])
-        # TODO: update R and Q
         R = np.diag([np.random.normal(1), np.random.normal(1), np.random.normal(0.1)])
         Q = np.diag([np.random.normal(0.5), np.random.normal(0.5), np.random.normal(0.05)])
         beacon_features = []
@@ -165,4 +148,3 @@ class Robot(pygame.sprite.Sprite):
                 phi = 2 * math.pi + phi
             beacon_features.append(np.array([beacon, phi]))
         self.state, self.covariance = kalman_filter(self.state, self.covariance, action, beacon_features, B, R, Q)
-        print(self.covariance)
