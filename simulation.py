@@ -7,7 +7,7 @@ from pygame.locals import *
 from Beacon import Beacon
 from Robot import Robot
 import settings
-from utility import calc_distance, calc_angle
+from utility import calc_distance, calc_angle, draw_dashed_line
 
 
 def manual_play():
@@ -99,11 +99,12 @@ def manual_play():
 
         # Draw line for predicted pose
         for i in range(len(history_state) - 1):
-            pygame.draw.line(screen, (100, 100, 100), (history_state[i][0], history_state[i][1]), (history_state[i + 1][0], history_state[i + 1][1]), 3)
+            # pygame.draw.line(screen, (59, 131, 189), (history_state[i][0], history_state[i][1]), (history_state[i + 1][0], history_state[i + 1][1]), 3)
+            draw_dashed_line(screen, (59, 131, 189), (history_state[i][0], history_state[i][1]), (history_state[i+1][0], history_state[i+1][1]))
 
         # Draw ellipses
         for i in range(0, len(history_sigma) - 1, 20):
-            pygame.draw.ellipse(screen, (100, 100, 100), (history_state[i][0] - history_sigma[i][0,0] / 2,
+            pygame.draw.ellipse(screen, (165, 32, 25), (history_state[i][0] - history_sigma[i][0,0] / 2,
                                                           history_state[i][1] - history_sigma[i][1,1] / 2,
                                                           history_sigma[i][0,0], history_sigma[i][1,1]), 2)
 

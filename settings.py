@@ -1,7 +1,7 @@
 # Author: Rick van Bellen
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 MAX_SENSOR_DIST = 200
 V_step = 5
 theta_step = 0.1
